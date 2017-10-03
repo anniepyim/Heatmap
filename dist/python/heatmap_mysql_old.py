@@ -1,12 +1,11 @@
 #!/usr/bin/env python
 
 import cgi, os, re, sys
-#import cgitb;cgitb.enable()
+import cgitb;cgitb.enable()
 import json
 import pandas as pd
-
+import numpy as np
 import collections
-import pandas as pd
 
 import matplotlib
 matplotlib.use('Agg')
@@ -16,10 +15,10 @@ from mpld3 import utils
 from mpld3 import plugins
 import seaborn_hm
 #import seaborn as sns
+import pymysql
+#import time
 
-form = cgi.FieldStorage()
-sessionid = form.getvalue('sessionid')
-process = form.getvalue('process')
+#start_time = time.time()
 
 class PluginBase(object):
     def get_dict(self):
@@ -59,13 +58,74 @@ class PointHTMLTooltip2(PluginBase):
                       "hoffset": hoffset,
                       "voffset": voffset}
 
-outputpath= "../data/user_uploads/" + ''.join(sessionid) + "/heatmap/"
-main = pd.read_csv("../data/user_uploads/" + ''.join(sessionid) + "/combined-heatmap.csv")
-main.set_index(['gene'],inplace=True)
+form = cgi.FieldStorage()
+jsons = form.getvalue('jsons')
+sampleID = json.loads(jsons)
+sessionid = form.getvalue('sessionid')
+organism = form.getvalue('organism')
+host = form.getvalue('host')
+port = form.getvalue('port')
+user = form.getvalue('user')
+passwd = form.getvalue('passwd')
+unix_socket = form.getvalue('unix_socket')
 
+#sampleID = ['HCT116-21-3-c1', 'HCT116-21-3-c3', 'HCT116-5-4', 'HCT116-5-4-p']
+#sessionid= "test"
+#organism = "Human"
+#host = "localhost"
+#port = 3306
+#user = "root"
+#passwd = ""
+#unix_socket = "/tmp/mysql.sock"
+
+
+isGroup = isinstance(sampleID, dict)
+
+if (isGroup):
+    grouping = pd.DataFrame()
+    for group in sampleID:
+        grouping_tmp = pd.DataFrame(np.array(sampleID[group]), columns = ["sampleID"])
+        grouping_tmp['group'] = group
+        if grouping.empty:
+            grouping = grouping_tmp
+        else:
+            grouping = pd.concat([grouping,grouping_tmp])
+    
+    grouping.drop_duplicates(subset='sampleID', keep="first")
+    sampleID = grouping['sampleID']
+
+#connecting to mysql database
+conn = pymysql.connect(host=host, port=port, user=user, passwd=passwd, db=organism, unix_socket=unix_socket)
+query1 = 'SELECT sampleID, gene, log2 FROM target_exp WHERE sampleID in ('+','.join(map("'{0}'".format, sampleID))+') AND userID in ("mitox","'+sessionid+'")'
+main = pd.read_sql(query1, con=conn)
+query = 'SELECT gene, process from target'
+genefunc = pd.read_sql(query, con=conn)
+conn.close()
+
+main.loc[main.log2 > 10, 'log2'] = 10
+main.loc[main.log2 < -10, 'log2'] = -10
+
+if (isGroup):
+    main = pd.merge(main,grouping,on='sampleID',how='inner')
+    main = main.groupby(['group','gene'])['log2'].mean().unstack('group')
+    main.reset_index(inplace=True)
+    main = pd.melt(main,id_vars=['gene'],var_name='sampleID', value_name='log2')
+
+main = main.pivot(index='gene',columns='sampleID',values='log2')
+main.reset_index(inplace=True)
+main = pd.merge(genefunc,main,on="gene",how='inner')
+main.set_index("gene",inplace=True)
+
+cmd = "rm -R ../data/user_uploads/" + ''.join(sessionid) + "/heatmap/*"
+os.system(cmd)
+
+targetpath= "../data/user_uploads/" + ''.join(sessionid) + "/combined-heatmap.csv"
+main.to_csv(targetpath)
+
+outputpath= "../data/user_uploads/" + ''.join(sessionid) + "/heatmap/"
 
 processes = sorted(main.process.unique())
-processes = processes[5:]
+processes = processes[0:5]
 for process in processes:
     
     df = main[main['process'] == process]   
@@ -120,7 +180,9 @@ for process in processes:
         with open(outputname, 'w') as fp:
             json.dump(html, fp)
 
+        
 print "Content-type: text/html\n"
 print "<html>"
 print sessionid
 print "</html>"
+#print("--- %s seconds ---" % (time.time() - start_time))

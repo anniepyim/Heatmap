@@ -53,13 +53,16 @@
             port = "3306",
             user = "root",
             passwd = "",
-            unix_socket = "/tmp/mysql.sock";
+            unix_socket = "/tmp/mysql.sock",
+            lower_limit = -2,
+            upper_limit = 2
 
-        var parameter = 'jsons=' + JSON.stringify(json) + '&organism='+ organism +'&sessionid='+ sessionid + '&host='+host + '&port='+port + '&user='+user + '&passwd='+passwd + '&unix_socket='+unix_socket;
+            var parameter = 'jsons=' + JSON.stringify(json) + '&organism='+ organism +'&sessionid='+ sessionid + '&host='+host + '&port='+port + '&user='+user + '&passwd='+passwd + '&unix_socket='+unix_socket + '&lower_limit='+lower_limit + '&upper_limit='+upper_limit;
+    
 
         var svg = "svgs-all";
 
-        var pyScript = ["./python/heatmap_mysql.py","./python/heatmap2_mysql.py"];
+        var pyScript = ["./python/heatmap_getprocess.py","./python/heatmap_mysql.py"];
         
         var jsonGroupCount = 0;
         

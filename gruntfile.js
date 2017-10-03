@@ -56,7 +56,7 @@ module.exports = function(grunt) {
     });
     
     //Tasks
-    grunt.registerTask('dist', ['jshint', 'handlebars','browserify','uglify']); //Generates dist folder
+    grunt.registerTask('dist', ['jshint', 'handlebars','browserify']); //Generates dist folder
     
     // Load the plugins
     grunt.loadNpmTasks('grunt-contrib-jshint');

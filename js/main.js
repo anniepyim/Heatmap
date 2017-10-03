@@ -14,10 +14,12 @@ Heatmap.init = function(json,jsonGroupCount,sessionid,parameter,svg,pyScript,onE
 
 function drawHeatmap(url){
     
+    d3.select(".mpld3-tooltip").remove();
+    
     mpld3.register_plugin("htmltooltip", HtmlTooltipPlugin);
     HtmlTooltipPlugin.prototype = Object.create(mpld3.Plugin.prototype);
     HtmlTooltipPlugin.prototype.constructor = HtmlTooltipPlugin;
-    HtmlTooltipPlugin.prototype.requiredProps = ["id"];
+    //HtmlTooltipPlugin.prototype.requiredProps = ["id"];
     HtmlTooltipPlugin.prototype.defaultProps = {labels:null,
                                                 hoffset:0,
                                                 voffset:10};
@@ -26,7 +28,7 @@ function drawHeatmap(url){
     }
 
     HtmlTooltipPlugin.prototype.draw = function(){
-       var obj = mpld3.get_element(this.props.id);
+       var obj = mpld3.get_element(this.props.id,this.fig);
        var labels = JSON.parse(this.props.labels);
        var tooltip = d3.select("body").append("div")
                     .attr("class", "mpld3-tooltip")
@@ -53,7 +55,7 @@ function drawHeatmap(url){
                 }.bind(this))
            .on("mouseout",  function(d, i){
                             tooltip.transition()
-                                .duration(500)
+                                .duration(200)
                                 .style("opacity", 0);
                 })
             .on("mousedown",  function(d, i){
@@ -77,6 +79,8 @@ function drawHeatmap(url){
     };
 
     d3.json(url,function(data){
+        var el = document.getElementById( 'heatmap' );
+        while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
         mpld3.draw_figure("heatmap", data);
     });
 
