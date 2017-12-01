@@ -43,7 +43,7 @@ if(init == "all"){
         
     }else{
         var process = $("#heatmapfolders option:selected").val();
-        var parameter_HM = 'process=' + process + '&sessionid=' + sessionid
+        var parameter_HM = 'process=' + process + '&sessionid=' + sessionid;
         
         var el = document.getElementById( "heatmap" );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}

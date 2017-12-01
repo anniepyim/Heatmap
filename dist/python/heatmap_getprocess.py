@@ -54,7 +54,7 @@ if (isGroup):
 conn = pymysql.connect(host=host, port=port, user=user, passwd=passwd, db=organism, unix_socket=unix_socket)
 query1 = 'SELECT sampleID, gene, log2 FROM target_exp WHERE sampleID in ('+','.join(map("'{0}'".format, sampleID))+') AND userID in ("mitox","'+sessionid+'")'
 main = pd.read_sql(query1, con=conn)
-query = 'SELECT gene, process from target'
+query = 'SELECT gene, process, gene_function from target'
 genefunc = pd.read_sql(query, con=conn)
 conn.close()
 
@@ -85,6 +85,7 @@ for process in processes:
     
     df = main[main['process'] == process]   
     df.drop(['process'],1,inplace=True)
+    df.drop(['gene_function'],1,inplace=True)
     df.dropna(thresh=len(df.columns)*0.5,inplace=True)
     mask = df.isnull()
     df.fillna(0,inplace=True)

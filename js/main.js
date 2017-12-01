@@ -1,6 +1,9 @@
 var Heatmap = {};
 var parserHeatmap = require('./parserHeatmap.js');
 var mpld3 = require('./mpld3.v0.3.js');
+var tipTemplate = require('./views/templates').Heatmap_tooltip;
+
+var clickEvent = {target: null, holdClick: false};
 
 Heatmap.init = function(json,jsonGroupCount,sessionid,parameter,svg,pyScript,onError){ 
     
@@ -38,12 +41,12 @@ function drawHeatmap(url){
 
        obj.elements()
            .on("mouseover", function(d, i){
+                onMouseOverNode(labels[i]);
 
-
-                            tooltip.transition()
+                            /*tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 0.9);
-                            tooltip.html("Sample: " + labels[i].sample + "<br/>" + "Gene: " + labels[i].gene + "<br/>" + "Log2 FC: " + d3.format(".3f")(labels[i].value));
+                            tooltip.html("Sample: " + labels[i].sample + "<br/>" + "Gene: " + labels[i].gene + "<br/>" + "Log2 FC: " + d3.format(".3f")(labels[i].value));*/
 
 
 
@@ -54,9 +57,10 @@ function drawHeatmap(url){
                     .style("left",d3.event.pageX + this.props.hoffset + "px");
                 }.bind(this))
            .on("mouseout",  function(d, i){
-                            tooltip.transition()
+                onMouseOut();
+                            /*tooltip.transition()
                                 .duration(200)
-                                .style("opacity", 0);
+                                .style("opacity", 0);*/
                 })
             .on("mousedown",  function(d, i){
                 
@@ -85,6 +89,26 @@ function drawHeatmap(url){
     });
 
 }
+
+onMouseOverNode = function(node){
+    
+    if(clickEvent.holdClick) return;
+    
+    //Init tooltip if hover over gene
+    if(!_.isUndefined(node.gene))
+        $('.tip').append(tipTemplate(node));
+
+
+};
+
+onMouseOut = function(){
+    
+    if(clickEvent.holdClick) return;
+    
+    //Clear tooltip
+    $('.tip').empty();
+    
+};
 
 //Export as App so it could be App.init could be called
 module.exports = Heatmap;

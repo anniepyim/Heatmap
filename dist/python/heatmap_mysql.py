@@ -24,7 +24,7 @@ sessionid = form.getvalue('sessionid')
 process = form.getvalue('process')
 
 #sessionid = "test"
-#process = "Import & Sorting"
+#process = "Apoptosis"
 
 outputpath= "../data/user_uploads/" + ''.join(sessionid) + "/heatmap/"
 outputname = outputpath + process+ '.json'
@@ -71,8 +71,13 @@ if not os.path.isfile(outputname):
     main = pd.read_csv("../data/user_uploads/" + ''.join(sessionid) + "/combined-heatmap.csv")
     main.set_index(['gene'],inplace=True)
 
-    df = main[main['process'] == process]   
+    df = main[main['process'] == process]  
+
+    info = df[['process','gene_function']]
+    info.reset_index(inplace = True)
+
     df.drop(['process'],1,inplace=True)
+    df.drop(['gene_function'],1,inplace=True)
     df.dropna(thresh=len(df.columns)*0.5,inplace=True)
     mask = df.isnull()
     df.fillna(0,inplace=True)
@@ -112,6 +117,8 @@ if not os.path.isfile(outputname):
                 colc += 1
                 index += 1
             rowc+=1
+
+        df3 = pd.merge(df3,info,on='gene',how='left')
 
         labels = df3.to_json(orient='records')
 

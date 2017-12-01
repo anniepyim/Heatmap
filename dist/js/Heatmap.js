@@ -17,6 +17,9 @@ Heatmap = require('./js/main');
 var Heatmap = {};
 var parserHeatmap = require('./parserHeatmap.js');
 var mpld3 = require('./mpld3.v0.3.js');
+var tipTemplate = require('./views/templates').Heatmap_tooltip;
+
+var clickEvent = {target: null, holdClick: false};
 
 Heatmap.init = function(json,jsonGroupCount,sessionid,parameter,svg,pyScript,onError){ 
     
@@ -54,12 +57,12 @@ function drawHeatmap(url){
 
        obj.elements()
            .on("mouseover", function(d, i){
+                onMouseOverNode(labels[i]);
 
-
-                            tooltip.transition()
+                            /*tooltip.transition()
                                 .duration(200)
                                 .style("opacity", 0.9);
-                            tooltip.html("Sample: " + labels[i].sample + "<br/>" + "Gene: " + labels[i].gene + "<br/>" + "Log2 FC: " + d3.format(".3f")(labels[i].value));
+                            tooltip.html("Sample: " + labels[i].sample + "<br/>" + "Gene: " + labels[i].gene + "<br/>" + "Log2 FC: " + d3.format(".3f")(labels[i].value));*/
 
 
 
@@ -70,9 +73,10 @@ function drawHeatmap(url){
                     .style("left",d3.event.pageX + this.props.hoffset + "px");
                 }.bind(this))
            .on("mouseout",  function(d, i){
-                            tooltip.transition()
+                onMouseOut();
+                            /*tooltip.transition()
                                 .duration(200)
-                                .style("opacity", 0);
+                                .style("opacity", 0);*/
                 })
             .on("mousedown",  function(d, i){
                 
@@ -102,9 +106,29 @@ function drawHeatmap(url){
 
 }
 
+onMouseOverNode = function(node){
+    
+    if(clickEvent.holdClick) return;
+    
+    //Init tooltip if hover over gene
+    if(!_.isUndefined(node.gene))
+        $('.tip').append(tipTemplate(node));
+
+
+};
+
+onMouseOut = function(){
+    
+    if(clickEvent.holdClick) return;
+    
+    //Clear tooltip
+    $('.tip').empty();
+    
+};
+
 //Export as App so it could be App.init could be called
 module.exports = Heatmap;
-},{"./mpld3.v0.3.js":3,"./parserHeatmap.js":4}],3:[function(require,module,exports){
+},{"./mpld3.v0.3.js":3,"./parserHeatmap.js":4,"./views/templates":6}],3:[function(require,module,exports){
 !function(d3) {
   var mpld3 = {
     _mpld3IsLoaded: true,
@@ -1690,7 +1714,7 @@ if(init == "all"){
         
     }else{
         var process = $("#heatmapfolders option:selected").val();
-        var parameter_HM = 'process=' + process + '&sessionid=' + sessionid
+        var parameter_HM = 'process=' + process + '&sessionid=' + sessionid;
         
         var el = document.getElementById( "heatmap" );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
@@ -1763,6 +1787,22 @@ this["Templates"] = this["Templates"] || {};
 
 this["Templates"]["Heatmap"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
     return "<div class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"175px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\"></div>";
+},"useData":true});
+
+this["Templates"]["Heatmap_tooltip"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
+    var helper, alias1=depth0 != null ? depth0 : (container.nullContext || {}), alias2=helpers.helperMissing, alias3="function", alias4=container.escapeExpression;
+
+  return "<div class=\"col-md-12 title\">"
+    + alias4(((helper = (helper = helpers.sample || (depth0 != null ? depth0.sample : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"sample","hash":{},"data":data}) : helper)))
+    + "</div>\n<div class=\"col-md-12 title\">"
+    + alias4(((helper = (helper = helpers.gene || (depth0 != null ? depth0.gene : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"gene","hash":{},"data":data}) : helper)))
+    + "</div>\n\n<div class=\"col-md-12 process\">"
+    + alias4(((helper = (helper = helpers.process || (depth0 != null ? depth0.process : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"process","hash":{},"data":data}) : helper)))
+    + "</div>\n\n<div class=\"col-md-12 function\">"
+    + alias4(((helper = (helper = helpers.nth || (depth0 != null ? depth0.nth : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"nth","hash":{},"data":data}) : helper)))
+    + "</div>\n\n<div class=\"col-md-6 miniTitle\">\n    Log2 FC\n</div>\n                \n<div class=\"col-md-6 info\">"
+    + alias4(((helper = (helper = helpers.value || (depth0 != null ? depth0.value : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data}) : helper)))
+    + "</div>\n";
 },"useData":true});
 
 if (typeof exports === 'object' && exports) {module.exports = this["Templates"];}
