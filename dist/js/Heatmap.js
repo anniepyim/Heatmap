@@ -31,7 +31,7 @@ Heatmap.init = function(json,jsonGroupCount,sessionid,parameter,svg,pyScript,onE
     
 };
 
-function drawHeatmap(url){
+function drawHeatmap(url,output){
     
     d3.select(".mpld3-tooltip").remove();
     
@@ -101,7 +101,13 @@ function drawHeatmap(url){
     d3.json(url,function(data){
         var el = document.getElementById( 'heatmap' );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
-        mpld3.draw_figure("heatmap", data);
+
+        var svg = data[0]["svg"]
+        var canvasHeight = data[0]["canvasHeight"]
+
+        mpld3.draw_figure("heatmap", svg);
+        document.getElementById('clhmsvg').setAttribute("height", canvasHeight+"px");
+        document.getElementById('clhmsvg-toolbar').setAttribute("y", canvasHeight-38);
     });
 
 }
@@ -1066,7 +1072,8 @@ module.exports = Heatmap;
       this.buttonsobj.transition(750).delay(250).attr("y", 16);
     }
     this.fig.canvas.on("mouseenter", showButtons.bind(this)).on("mouseleave", hideButtons.bind(this)).on("touchenter", showButtons.bind(this)).on("touchstart", showButtons.bind(this));
-    this.toolbar = this.fig.canvas.append("svg:svg").attr("width", 16 * this.buttons.length).attr("height", 16).attr("x", 2).attr("y", this.fig.height - 16 - 2).attr("class", "mpld3-toolbar");
+    //added the id for the toolbar Annie Yim
+    this.toolbar = this.fig.canvas.append("svg:svg").attr("width", 16 * this.buttons.length).attr("height", 16).attr("x", 2).attr("y", this.fig.height - 16 - 2).attr("class", "mpld3-toolbar").attr("id", "clhmsvg-toolbar");
     this.buttonsobj = this.toolbar.append("svg:g").selectAll("buttons").data(this.buttons).enter().append("svg:image").attr("class", function(d) {
       return d.cssclass;
     }).attr("xlink:href", function(d) {
@@ -1574,7 +1581,8 @@ module.exports = Heatmap;
     this.plugins.push(new plug(this, props));
   };
   mpld3_Figure.prototype.draw = function() {
-    this.canvas = this.root.append("svg:svg").attr("class", "mpld3-figure").attr("width", this.width).attr("height", this.height);
+    //added the id for the svg Annie Yim
+    this.canvas = this.root.append("svg:svg").attr("class", "mpld3-figure").attr("id", "clhmsvg").attr("width", this.width).attr("height", this.height);
     for (var i = 0; i < this.axes.length; i++) {
       this.axes[i].draw();
     }
@@ -1734,9 +1742,9 @@ if(init == "all"){
                     url: pyScript[1], 
                     data: parameter_HM,
                     type: "POST",  
-                    success: function (data) {
+                    success: function (output) {
 
-                        drawHeatmap(url);
+                        drawHeatmap(url,output);
 
                     },
                     error: function(e){

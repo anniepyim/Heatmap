@@ -23,8 +23,8 @@ form = cgi.FieldStorage()
 sessionid = form.getvalue('sessionid')
 process = form.getvalue('process')
 
-#sessionid = "test"
-#process = "Apoptosis"
+# sessionid = "test"
+# process = "Apoptosis"
 
 outputpath= "../data/user_uploads/" + ''.join(sessionid) + "/heatmap/"
 outputname = outputpath + process+ '.json'
@@ -84,7 +84,11 @@ if not os.path.isfile(outputname):
 
     if (df.shape[0] >= 3):
 
-        cbar_kws = { 'vmin' : -2, 'vmax':2, 'cmap':'RdBu' }
+        ratio = float(df.shape[0])/50
+        if (ratio < 1):
+            ratio = 1
+        canvasHeight = (0.65*ratio + 0.35)*800+40
+        cbar_kws = { 'vmin' : -2, 'vmax':2, 'cmap':'RdBu'}
         cm= seaborn_hm.clustermap(df,mask=mask,**cbar_kws)
 
         p = cm.heatmap.mesh
@@ -93,11 +97,19 @@ if not os.path.isfile(outputname):
         drow = cm.ax_row_dendrogram.get_position()
         cax = cm.cax.get_position()
         hm = cm.ax_heatmap.get_position()
-        cm.ax_col_dendrogram.set_position([dcol.x0-drow.width*0.75, dcol.y0, dcol.width, dcol.height*0.75])
-        cm.ax_row_dendrogram.set_position([drow.x0, drow.y0, drow.width*0.25, drow.height])
-        cm.ax_heatmap.set_position([hm.x0-drow.width*0.75, hm.y0, hm.width, hm.height])
-        cm.cax.set_position([cax.x0,cax.y0,cax.width,cax.height*0.75])
+        cm.ax_col_dendrogram.set_position([dcol.x0, dcol.y0, dcol.width, 0.11])
+        cm.ax_row_dendrogram.set_position([drow.x0, drow.y0-(drow.height*(ratio-1)), drow.width, drow.height*ratio])
+        cm.ax_heatmap.set_position([hm.x0, hm.y0-(hm.height*(ratio-1)), hm.width, hm.height*ratio])
+        #cm.ax_heatmap.set_position([hm.x0, hm.y0, hm.width, hm.height*ratio/canvasHeightRatio])
+        #cm.cax.set_position([cax.x0,cax.y0,cax.width,cax.height])
+        cm.cax.set_position([cax.x0,cax.y0-(cax.height*0.25),cax.width,cax.height*0.75])
 
+        # cm.ax_col_dendrogram.set_position([dcol.x0, dcol.y0+((ratio-1)*0.04), dcol.width, 0.1])
+        # cm.ax_row_dendrogram.set_position([drow.x0, drow.y0+((ratio-1)*0.04), drow.width, drow.height])
+        # cm.ax_heatmap.set_position([hm.x0, hm.y0+((ratio-1)*0.04), hm.width, hm.height*ratio/1.5])
+        # cm.cax.set_position([cax.x0,cax.y0+((ratio-1)*0.04)-0.02,cax.width,0.1])
+
+        # print(cm.fig)
 
         df2 = df2.T
         df2= df2[df2.columns[::-1]]
@@ -126,12 +138,19 @@ if not os.path.isfile(outputname):
         plugins.connect(cm.fig, tooltip)
 
         html = mpld3.fig_to_dict(cm.fig)
+        json_all = [{'svg' : html, 'canvasHeight' : canvasHeight}]
+
         with open(outputname, 'w') as fp:
-            json.dump(html, fp)
+            json.dump(json_all, fp)
+
 
 print "Content-type: text/html\n"
 print "<html>"
 print sessionid
 print "</html>"
-#print 'Content-Type: application/json\n\n'
-#print (json.dumps(html))
+
+# print 'Content-Type: application/json\n\n'
+# print (output)
+
+# print "Content-type: text/html\n"
+# print (hm.height)

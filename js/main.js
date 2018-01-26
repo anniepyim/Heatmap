@@ -85,7 +85,13 @@ function drawHeatmap(url){
     d3.json(url,function(data){
         var el = document.getElementById( 'heatmap' );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
-        mpld3.draw_figure("heatmap", data);
+
+        var svg = data[0]["svg"]
+        var canvasHeight = data[0]["canvasHeight"]
+
+        mpld3.draw_figure("heatmap", svg);
+        document.getElementById('clhmsvg').setAttribute("height", canvasHeight+"px");
+        document.getElementById('clhmsvg-toolbar').setAttribute("y", canvasHeight-38);
     });
 
 }

@@ -63,7 +63,7 @@ if(init == "all"){
                     url: pyScript[1], 
                     data: parameter_HM,
                     type: "POST",  
-                    success: function (data) {
+                    success: function (output) {
 
                         drawHeatmap(url);
 

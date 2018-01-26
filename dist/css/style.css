@@ -2,6 +2,13 @@
 @import url("bootstrap-select.min.css");
 @import url("font.css");
 
+$('#sidebar').affix({
+      offset: {
+        top: 245,
+        bottom: navHeight
+      }
+});
+
 .question {
 padding: 0px 0 0px;
   text-align: center;
@@ -333,7 +340,7 @@ div.mpld3-tooltip
 
 g.mpld3-xaxis g.tick text
 {
-transform: rotate(-90deg) translateX(-4.5em) translateY(-1em);
+transform: translateX(-2em) translateY(4em) rotate(-75deg) ;
 }
 
 g.mpld3-xaxis path.domain,g.mpld3-yaxis path.domain
