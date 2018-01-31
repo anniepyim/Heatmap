@@ -31,7 +31,7 @@ Heatmap.init = function(json,jsonGroupCount,sessionid,parameter,svg,pyScript,onE
     
 };
 
-function drawHeatmap(url,output){
+function drawHeatmap(url){
     
     d3.select(".mpld3-tooltip").remove();
     
@@ -55,28 +55,27 @@ function drawHeatmap(url,output){
                     .style("z-index", "10")
                     .style("opacity", 0);
 
+        tempfunc = function(d,i) {
+          console.log(labels[i]);
+        }
+
+
        obj.elements()
-           .on("mouseover", function(d, i){
+           /*.on("mouseover", function(d, i){
                 onMouseOverNode(labels[i]);
-
-                            /*tooltip.transition()
-                                .duration(200)
-                                .style("opacity", 0.9);
-                            tooltip.html("Sample: " + labels[i].sample + "<br/>" + "Gene: " + labels[i].gene + "<br/>" + "Log2 FC: " + d3.format(".3f")(labels[i].value));*/
-
-
-
-                })
-           .on("mousemove", function(d, i){
+                })*/
+            .on("mouseover", function(d, i){
+                console.log(d,i)
+                console.log(labels[i])
+                onMouseOverNode(labels[i]);
+            })
+           /*.on("mousemove", function(d, i){
                   tooltip
                     .style("top", d3.event.pageY + this.props.voffset + "px")
                     .style("left",d3.event.pageX + this.props.hoffset + "px");
-                }.bind(this))
+                }.bind(this))*/
            .on("mouseout",  function(d, i){
                 onMouseOut();
-                            /*tooltip.transition()
-                                .duration(200)
-                                .style("opacity", 0);*/
                 })
             .on("mousedown",  function(d, i){
                 
@@ -102,15 +101,22 @@ function drawHeatmap(url,output){
         var el = document.getElementById( 'heatmap' );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
 
-        var svg = data[0]["svg"]
-        var canvasHeight = data[0]["canvasHeight"]
+        var svg = data[0]["svg"];
+        var canvasHeight = data[0]["canvasHeight"];
 
         mpld3.draw_figure("heatmap", svg);
+
+        d3.selectAll("text")
+        .style("font-family","Montserrat, Arial")
+        .style("font-size","12px");
+        
         document.getElementById('clhmsvg').setAttribute("height", canvasHeight+"px");
         document.getElementById('clhmsvg-toolbar').setAttribute("y", canvasHeight-38);
     });
 
 }
+
+
 
 onMouseOverNode = function(node){
     
@@ -1744,7 +1750,7 @@ if(init == "all"){
                     type: "POST",  
                     success: function (output) {
 
-                        drawHeatmap(url,output);
+                        drawHeatmap(url);
 
                     },
                     error: function(e){
@@ -1794,7 +1800,7 @@ Handlebars = glob.Handlebars || require('handlebars');
 this["Templates"] = this["Templates"] || {};
 
 this["Templates"]["Heatmap"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"175px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\"></div>";
+    return "<div id=\"processSelector\" class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"175px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\"></div>";
 },"useData":true});
 
 this["Templates"]["Heatmap_tooltip"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

@@ -86,10 +86,15 @@ function drawHeatmap(url){
         var el = document.getElementById( 'heatmap' );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
 
-        var svg = data[0]["svg"]
-        var canvasHeight = data[0]["canvasHeight"]
+        var svg = data[0]["svg"];
+        var canvasHeight = data[0]["canvasHeight"];
 
         mpld3.draw_figure("heatmap", svg);
+
+        d3.selectAll("text")
+        .style("font-family","Montserrat, Arial")
+        .style("font-size","12px");
+        
         document.getElementById('clhmsvg').setAttribute("height", canvasHeight+"px");
         document.getElementById('clhmsvg-toolbar').setAttribute("y", canvasHeight-38);
     });
