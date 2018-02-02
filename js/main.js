@@ -39,47 +39,85 @@ function drawHeatmap(url){
                     .style("z-index", "10")
                     .style("opacity", 0);
 
+        onMouseOverNode = function(d,i) {
+          
+            node = labels[i];
+
+            if(clickEvent.holdClick) return;
+
+            //Clear tooltip
+            $('#rowtip1').empty();
+
+            //Init tooltip if hover over gene
+            if(!_.isUndefined(node.gene))
+              $('#rowtip1').append(tipTemplate(node));
+        };
+
+        onMouseOut = function(){
+
+            if(clickEvent.holdClick) return;
+
+            //Clear tooltip
+            $('#rowtip1').empty();
+
+        };
+
+        onMouseDown = function(d,i){
+            node = labels[i];
+
+            if(clickEvent.holdClick) return;
+
+            //Clear tooltip
+            $('#rowtip1').empty();
+
+            //Init tooltip if hover over gene
+            if(!_.isUndefined(node.gene))
+              $('#rowtip1').append(tipTemplate(node));
+
+            d3.selectAll("path.mpld3-path").on("mouseout",null);
+            d3.selectAll("path.mpld3-path").on("mouseover",null);
+
+            var selected = $("#groups option:selected").val();
+            if (selected == "") {
+                selected = 'selected-sample';
+            }
+           
+            var newvalue = labels[i].sample;
+
+       
+            if ($("#"+selected+" option[value='"+newvalue+"']").length === 0){    
+                var option = document.createElement("option");
+                option.text = labels[i].sample;
+                option.value = labels[i].sample;
+                var select = document.getElementById(selected);
+                select.appendChild(option);
+                }
+        };
+
+        $(window).click(function(event){
+            if (event.target.getAttribute('class') != "mpld3-figure"){
+                if(clickEvent.holdClick) return;
+                
+                //Clear tooltip
+                $('#rowtip1').empty();
+
+                obj.elements().on('mouseout', onMouseOut);
+                obj.elements().on('mouseover', onMouseOverNode);
+            }    
+        });
+
        obj.elements()
-           .on("mouseover", function(d, i){
+           /*.on("mouseover", function(d, i){
                 onMouseOverNode(labels[i]);
-
-                            /*tooltip.transition()
-                                .duration(200)
-                                .style("opacity", 0.9);
-                            tooltip.html("Sample: " + labels[i].sample + "<br/>" + "Gene: " + labels[i].gene + "<br/>" + "Log2 FC: " + d3.format(".3f")(labels[i].value));*/
-
-
-
-                })
-           .on("mousemove", function(d, i){
+                })*/
+          .on("mouseover", onMouseOverNode)
+           /*.on("mousemove", function(d, i){
                   tooltip
                     .style("top", d3.event.pageY + this.props.voffset + "px")
                     .style("left",d3.event.pageX + this.props.hoffset + "px");
-                }.bind(this))
-           .on("mouseout",  function(d, i){
-                onMouseOut();
-                            /*tooltip.transition()
-                                .duration(200)
-                                .style("opacity", 0);*/
-                })
-            .on("mousedown",  function(d, i){
-                
-                var selected = $("#groups option:selected").val();
-                if (selected == "") {
-                    selected = 'selected-sample';
-                }
-               
-                var newvalue = labels[i].sample;
-           
-                if ($("#"+selected+" option[value='"+newvalue+"']").length === 0){    
-                    var option = document.createElement("option");
-                    option.text = labels[i].sample;
-                    option.value = labels[i].sample;
-                    var select = document.getElementById(selected);
-                    select.appendChild(option);
-                }
-               
-            });
+                }.bind(this))*/
+          .on("mouseout",  onMouseOut)
+          .on("mousedown", onMouseDown);
     };
 
     d3.json(url,function(data){
@@ -100,26 +138,6 @@ function drawHeatmap(url){
     });
 
 }
-
-onMouseOverNode = function(node){
-    
-    if(clickEvent.holdClick) return;
-    
-    //Init tooltip if hover over gene
-    if(!_.isUndefined(node.gene))
-        $('.tip').append(tipTemplate(node));
-
-
-};
-
-onMouseOut = function(){
-    
-    if(clickEvent.holdClick) return;
-    
-    //Clear tooltip
-    $('.tip').empty();
-    
-};
 
 //Export as App so it could be App.init could be called
 module.exports = Heatmap;

@@ -55,46 +55,85 @@ function drawHeatmap(url){
                     .style("z-index", "10")
                     .style("opacity", 0);
 
-        tempfunc = function(d,i) {
-          console.log(labels[i]);
-        }
+        onMouseOverNode = function(d,i) {
+          
+            node = labels[i];
 
+            if(clickEvent.holdClick) return;
+
+            //Clear tooltip
+            $('#rowtip1').empty();
+
+            //Init tooltip if hover over gene
+            if(!_.isUndefined(node.gene))
+              $('#rowtip1').append(tipTemplate(node));
+        };
+
+        onMouseOut = function(){
+
+            if(clickEvent.holdClick) return;
+
+            //Clear tooltip
+            $('#rowtip1').empty();
+
+        };
+
+        onMouseDown = function(d,i){
+            node = labels[i];
+
+            if(clickEvent.holdClick) return;
+
+            //Clear tooltip
+            $('#rowtip1').empty();
+
+            //Init tooltip if hover over gene
+            if(!_.isUndefined(node.gene))
+              $('#rowtip1').append(tipTemplate(node));
+
+            d3.selectAll("path.mpld3-path").on("mouseout",null);
+            d3.selectAll("path.mpld3-path").on("mouseover",null);
+
+            var selected = $("#groups option:selected").val();
+            if (selected == "") {
+                selected = 'selected-sample';
+            }
+           
+            var newvalue = labels[i].sample;
+
+       
+            if ($("#"+selected+" option[value='"+newvalue+"']").length === 0){    
+                var option = document.createElement("option");
+                option.text = labels[i].sample;
+                option.value = labels[i].sample;
+                var select = document.getElementById(selected);
+                select.appendChild(option);
+                }
+        };
+
+        $(window).click(function(event){
+            if (event.target.getAttribute('class') != "mpld3-figure"){
+                if(clickEvent.holdClick) return;
+                
+                //Clear tooltip
+                $('#rowtip1').empty();
+
+                obj.elements().on('mouseout', onMouseOut);
+                obj.elements().on('mouseover', onMouseOverNode);
+            }    
+        });
 
        obj.elements()
            /*.on("mouseover", function(d, i){
                 onMouseOverNode(labels[i]);
                 })*/
-            .on("mouseover", function(d, i){
-                console.log(d,i)
-                console.log(labels[i])
-                onMouseOverNode(labels[i]);
-            })
+          .on("mouseover", onMouseOverNode)
            /*.on("mousemove", function(d, i){
                   tooltip
                     .style("top", d3.event.pageY + this.props.voffset + "px")
                     .style("left",d3.event.pageX + this.props.hoffset + "px");
                 }.bind(this))*/
-           .on("mouseout",  function(d, i){
-                onMouseOut();
-                })
-            .on("mousedown",  function(d, i){
-                
-                var selected = $("#groups option:selected").val();
-                if (selected == "") {
-                    selected = 'selected-sample';
-                }
-               
-                var newvalue = labels[i].sample;
-           
-                if ($("#"+selected+" option[value='"+newvalue+"']").length === 0){    
-                    var option = document.createElement("option");
-                    option.text = labels[i].sample;
-                    option.value = labels[i].sample;
-                    var select = document.getElementById(selected);
-                    select.appendChild(option);
-                }
-               
-            });
+          .on("mouseout",  onMouseOut)
+          .on("mousedown", onMouseDown);
     };
 
     d3.json(url,function(data){
@@ -115,28 +154,6 @@ function drawHeatmap(url){
     });
 
 }
-
-
-
-onMouseOverNode = function(node){
-    
-    if(clickEvent.holdClick) return;
-    
-    //Init tooltip if hover over gene
-    if(!_.isUndefined(node.gene))
-        $('.tip').append(tipTemplate(node));
-
-
-};
-
-onMouseOut = function(){
-    
-    if(clickEvent.holdClick) return;
-    
-    //Clear tooltip
-    $('.tip').empty();
-    
-};
 
 //Export as App so it could be App.init could be called
 module.exports = Heatmap;
@@ -1800,7 +1817,7 @@ Handlebars = glob.Handlebars || require('handlebars');
 this["Templates"] = this["Templates"] || {};
 
 this["Templates"]["Heatmap"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div id=\"processSelector\" class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"175px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\"></div>";
+    return "<div id=\"processSelector\" class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"175px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\" align=\"center\"></div>";
 },"useData":true});
 
 this["Templates"]["Heatmap_tooltip"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
@@ -1816,7 +1833,7 @@ this["Templates"]["Heatmap_tooltip"] = Handlebars.template({"compiler":[7,">= 4.
     + alias4(((helper = (helper = helpers.nth || (depth0 != null ? depth0.nth : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"nth","hash":{},"data":data}) : helper)))
     + "</div>\n\n<div class=\"col-md-6 miniTitle\">\n    Log2 FC\n</div>\n                \n<div class=\"col-md-6 info\">"
     + alias4(((helper = (helper = helpers.value || (depth0 != null ? depth0.value : depth0)) != null ? helper : alias2),(typeof helper === alias3 ? helper.call(alias1,{"name":"value","hash":{},"data":data}) : helper)))
-    + "</div>\n";
+    + "</div>";
 },"useData":true});
 
 if (typeof exports === 'object' && exports) {module.exports = this["Templates"];}

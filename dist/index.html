@@ -17,7 +17,6 @@
     <div class = "container" id="content">
         <!-- Page Content -->     
         <div class="container main">
-            <div id="#wrapUp" class="row">
                 <div class = "col-md-2" id="sidebar2">
                     <!-- the group div --> 
                     <div id = "sidebar">
@@ -35,7 +34,8 @@
                     
                     <div class="col-md-12" id="warning" style="margin-top:10px">
                         </div>
-                    <div class="row tip" style="margin-top:0px;"></div>
+                    <div id="rowtip1" class="row tip" style="margin-top:0px;"></div>
+                    <div id="rowtip2" class="row tip" style="margin-top:0px;display:none"></div>
                     <div class="col-md-12" style="margin-top:10px;text-align: center">
                         <button id = "downloadsvg" class="btn btn-success">Download</button>
                     </div>  
@@ -45,7 +45,6 @@
                     <div id = "svgs-all" class="col-md-12">
                     </div>   
                 </div>
-            </div>
         </div>
     </div>
     <canvas width=1000 height = 700 id="canvasDownload" style="display:none"></canvas>   
