@@ -19,8 +19,10 @@ if(init == "all"){
                 
                 var htmltext = "";
                 $('#heatmapfolders').empty();
-                $.each(data, function(i,process) {
-                    htmltext = htmltext+'<option value=\"'+process+'\">'+process+'</option>';
+                $.each(data, function(i,url) {
+                    urlbd = url.split("/");
+                    mitoprocess = urlbd[urlbd.length-1].split(".json")[0];
+                    htmltext = htmltext+'<option value=\"'+url+'\">'+mitoprocess+'</option>';
                 });
 
                 $("#heatmapfolders").html(htmltext);
@@ -42,8 +44,8 @@ if(init == "all"){
         });
         
     }else{
-        var process = $("#heatmapfolders option:selected").val();
-        var parameter_HM = 'process=' + process + '&sessionid=' + sessionid;
+        var targeturl = $("#heatmapfolders option:selected").val();
+        var parameter_HM = 'targeturl=' + targeturl;
         
         var el = document.getElementById( "heatmap" );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
@@ -52,20 +54,19 @@ if(init == "all"){
         div.innerHTML ='<img id="loading" src="./img/loading.gif">';
         el.appendChild(div);
         
-        url = "./data/user_uploads/"+sessionid+"/heatmap/"+process+".json";
         
         jQuery.ajax({
-            url:url,
+            url:targeturl,
             type:'HEAD',
             error: function()
-            {
+            {   
                 jQuery.ajax({
                     url: pyScript[1], 
                     data: parameter_HM,
                     type: "POST",  
                     success: function (output) {
 
-                        drawHeatmap(url);
+                        drawHeatmap(targeturl);
 
                     },
                     error: function(e){
@@ -74,7 +75,7 @@ if(init == "all"){
             },
             success: function()
             {
-                drawHeatmap(url);
+                drawHeatmap(targeturl);
             }
         });
         

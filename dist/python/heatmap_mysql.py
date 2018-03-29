@@ -20,16 +20,14 @@ import os.path
 #import seaborn as sns
 
 form = cgi.FieldStorage()
-sessionid = form.getvalue('sessionid')
-process = form.getvalue('process')
+targeturl = "."+form.getvalue('targeturl')
+#targeturl = "."+"./data/user_uploads/test/heatmap/90796/Amino Acid Metabolism.json"
 
-# sessionid = "test"
-# process = "Apoptosis"
+urlbd = targeturl.split("/")
+sourcecsv = "/".join(urlbd[0:len(urlbd)-1])+"/combined-heatmap.csv"
+process = urlbd[len(urlbd)-1].split(".json")[0]
 
-outputpath= "../data/user_uploads/" + ''.join(sessionid) + "/heatmap/"
-outputname = outputpath + process+ '.json'
-
-if not os.path.isfile(outputname):
+if not os.path.isfile(targeturl):
     class PluginBase(object):
         def get_dict(self):
             return self.dict_
@@ -68,7 +66,7 @@ if not os.path.isfile(outputname):
                           "hoffset": hoffset,
                           "voffset": voffset}
 
-    main = pd.read_csv("../data/user_uploads/" + ''.join(sessionid) + "/combined-heatmap.csv")
+    main = pd.read_csv(sourcecsv)
     main.set_index(['gene'],inplace=True)
 
     df = main[main['process'] == process]  
@@ -140,7 +138,7 @@ if not os.path.isfile(outputname):
         html = mpld3.fig_to_dict(cm.fig)
         json_all = [{'svg' : html, 'canvasHeight' : canvasHeight}]
 
-        with open(outputname, 'w') as fp:
+        with open(targeturl, 'w') as fp:
             json.dump(json_all, fp)
 
 

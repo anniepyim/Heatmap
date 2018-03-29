@@ -1721,8 +1721,10 @@ if(init == "all"){
                 
                 var htmltext = "";
                 $('#heatmapfolders').empty();
-                $.each(data, function(i,process) {
-                    htmltext = htmltext+'<option value=\"'+process+'\">'+process+'</option>';
+                $.each(data, function(i,url) {
+                    urlbd = url.split("/");
+                    mitoprocess = urlbd[urlbd.length-1].split(".json")[0];
+                    htmltext = htmltext+'<option value=\"'+url+'\">'+mitoprocess+'</option>';
                 });
 
                 $("#heatmapfolders").html(htmltext);
@@ -1744,8 +1746,8 @@ if(init == "all"){
         });
         
     }else{
-        var process = $("#heatmapfolders option:selected").val();
-        var parameter_HM = 'process=' + process + '&sessionid=' + sessionid;
+        var targeturl = $("#heatmapfolders option:selected").val();
+        var parameter_HM = 'targeturl=' + targeturl;
         
         var el = document.getElementById( "heatmap" );
         while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
@@ -1754,20 +1756,19 @@ if(init == "all"){
         div.innerHTML ='<img id="loading" src="./img/loading.gif">';
         el.appendChild(div);
         
-        url = "./data/user_uploads/"+sessionid+"/heatmap/"+process+".json";
         
         jQuery.ajax({
-            url:url,
+            url:targeturl,
             type:'HEAD',
             error: function()
-            {
+            {   
                 jQuery.ajax({
                     url: pyScript[1], 
                     data: parameter_HM,
                     type: "POST",  
                     success: function (output) {
 
-                        drawHeatmap(url);
+                        drawHeatmap(targeturl);
 
                     },
                     error: function(e){
@@ -1776,7 +1777,7 @@ if(init == "all"){
             },
             success: function()
             {
-                drawHeatmap(url);
+                drawHeatmap(targeturl);
             }
         });
         
@@ -1817,7 +1818,7 @@ Handlebars = glob.Handlebars || require('handlebars');
 this["Templates"] = this["Templates"] || {};
 
 this["Templates"]["Heatmap"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {
-    return "<div id=\"processSelector\" class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"175px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\" align=\"center\"></div>";
+    return "<div id=\"processSelector\" class=\"col-md-12\" style=\"margin-top:10px;\" align=\"center\">\n    Show Heatmap by Processes <select class=\"selectpicker\" id=\"heatmapfolders\" data-style=\"btn-default\" title=\"Pick process\" data-width=\"350px\">\n    </select><img id=\"loading_heatmap_process\" src=\"./img/loading_folder.gif\" height=\"35\" width=\"35\" style=\"display:none\">\n</div>\n<div id=\"heatmap\" class=\"col-md-12\" align=\"center\"></div>";
 },"useData":true});
 
 this["Templates"]["Heatmap_tooltip"] = Handlebars.template({"compiler":[7,">= 4.0.0"],"main":function(container,depth0,helpers,partials,data) {

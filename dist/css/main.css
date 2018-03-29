@@ -1,0 +1,172 @@
+@import url("bootstrap.min.css");
+@import url("font.css");
+
+@media (min-width: 1200px) {
+  .container-fluid{
+    padding:0px 75px
+  }
+}
+
+body {
+  overflow-x: hidden;
+  overflow-y: scroll;
+  font-family: 'Montserrat', 'sans-serif';
+  padding-top: 70px;
+  margin: 10px;
+  font-size:14px;
+    text-align: justify
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+p {
+  font-size: 16px;
+}
+
+p.large {
+  font-size: 18px;
+}
+
+a {
+  color: #24d8ba;
+}
+a:hover,
+a:focus,
+a:active,
+a.active {
+  color: #11dbb9;
+}
+
+.navbar-custom {
+  background-color: #222222;
+  border-color: transparent;
+}
+.navbar-custom .navbar-brand {
+  color: #12e2c0;
+  font-family: "Kaushan Script", "Helvetica Neue", Helvetica, Arial, cursive;
+}
+.navbar-custom .navbar-brand:hover,
+.navbar-custom .navbar-brand:focus,
+.navbar-custom .navbar-brand:active,
+.navbar-custom .navbar-brand.active {
+  color: #11dbb9;
+}
+.navbar-custom .navbar-collapse {
+  border-color: rgba(255, 255, 255);
+}
+.navbar-custom .navbar-toggle {
+  background-color: #12e2c0;
+  border-color: #12e2c0;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  color: white;
+  font-size: 12px;
+}
+.navbar-custom .navbar-toggle:hover,
+.navbar-custom .navbar-toggle:focus {
+  background-color: #12e2c0;
+}
+.navbar-custom .nav li a {
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  font-weight: 400;
+  letter-spacing: 1px;
+  color: white;
+}
+.navbar-custom .nav li a:hover,
+.navbar-custom .nav li a:focus {
+  color: #12e2c0;
+  outline: none;
+}
+.navbar-custom .navbar-nav > .active > a {
+  border-radius: 0;
+  color: white;
+  background-color: #12e2c0;
+}
+.navbar-custom .navbar-nav > .active > a:hover,
+.navbar-custom .navbar-nav > .active > a:focus {
+  color: white;
+  background-color: #11dbb9;
+}
+@media (min-width: 768px) {
+  .navbar-custom {
+    background-color: #222222;
+    padding: 10px 0;
+    -webkit-transition: padding 0.3s;
+    -moz-transition: padding 0.3s;
+    transition: padding 0.3s;
+    border: none;
+  }
+  .navbar-custom .navbar-brand {
+    font-size: 2em;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
+  }
+  .navbar-custom .navbar-nav > .active > a {
+    border-radius: 3px;
+  }
+}
+@media (min-width: 768px) {
+  .navbar-custom.affix {
+    background-color: #222222;
+    padding: 10px 0;
+  }
+/*  .navbar-custom.affix .navbar-brand {
+    font-size: 1.5em;
+  }*/
+}
+
+section {
+  position: relative;
+  padding: 100px 0;
+}
+
+
+section h2.section-heading {
+  font-size: 40px;
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+section h3.section-subheading {
+  font-size: 16px;
+  font-family: "Droid Serif", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: none;
+  font-style: italic;
+  font-weight: 400;
+  margin-bottom: 75px;
+}
+@media (min-width: 768px) {
+  section {
+    padding: 75px 0;
+  }
+}
+
+footer {
+    background-color: #222222;
+  padding: 10px 0;
+  text-align: center;
+    color: white;
+}
+footer span.copyright {
+  line-height: 40px;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  text-transform: none;
+}
+footer ul.quicklinks {
+  margin-bottom: 0;
+  line-height: 40px;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  text-transform: none;
+}

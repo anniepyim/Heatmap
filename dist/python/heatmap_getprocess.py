@@ -23,16 +23,16 @@ unix_socket = form.getvalue('unix_socket')
 upper_limit = float(form.getvalue('upper_limit'))
 lower_limit = float(form.getvalue('lower_limit'))
 
-
-#sampleID = ['HCT116-21-3-c1', 'HCT116-21-3-c3', 'HCT116-5-4', 'HCT116-5-4-p']
-#sessionid= "test"
-#organism = "Human"
-#host = "localhost"
-#port = 3306
-#user = "root"
-#passwd = ""
-#unix_socket = "/tmp/mysql.sock"
-
+# sampleID = ['HCT116-21-3-c1', 'HCT116-21-3-c3', 'HCT116-5-4', 'HCT116-5-4-p']
+# sessionid= "test"
+# organism = "Human"
+# host = "localhost"
+# port = 3306
+# user = "root"
+# passwd = ""
+# unix_socket = "/tmp/mysql.sock"
+# upper_limit = 2
+# lower_limit = -2
 
 
 isGroup = isinstance(sampleID, dict)
@@ -71,13 +71,19 @@ main.reset_index(inplace=True)
 main = pd.merge(genefunc,main,on="gene",how='inner')
 main.set_index("gene",inplace=True)
 
-cmd = "rm -R ../data/user_uploads/" + ''.join(sessionid) + "/heatmap/*"
+exist = True
+
+# Generating new directory for storing the results
+while exist == True:
+    newint = np.random.randint(low=10000, high=99999)
+    targeturl = './data/user_uploads/'+sessionid+'/heatmap/'+str(newint)+'/'
+    exist = os.path.isdir('.'+targeturl)
+
+cmd = "mkdir ." + targeturl
 os.system(cmd)
 
-targetpath= "../data/user_uploads/" + ''.join(sessionid) + "/combined-heatmap.csv"
+targetpath= "." + targeturl + "combined-heatmap.csv"
 main.to_csv(targetpath)
-
-outputpath= "../data/user_uploads/" + ''.join(sessionid) + "/heatmap/"
 
 processes = sorted(main.process.unique())
 pro_list = []
@@ -91,7 +97,7 @@ for process in processes:
     df.fillna(0,inplace=True)
     
     if (df.shape[0] >= 3):
-        pro_list.append(process)
+        pro_list.append(targeturl+process+".json")
         
 pro_list = json.dumps(pro_list)
         
