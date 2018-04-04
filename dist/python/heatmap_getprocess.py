@@ -79,7 +79,7 @@ while exist == True:
     targeturl = './data/user_uploads/'+sessionid+'/heatmap/'+str(newint)+'/'
     exist = os.path.isdir('.'+targeturl)
 
-cmd = "mkdir ." + targeturl
+cmd = "mkdir -p ." + targeturl
 os.system(cmd)
 
 targetpath= "." + targeturl + "combined-heatmap.csv"

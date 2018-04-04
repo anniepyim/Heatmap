@@ -151,6 +151,16 @@ function drawHeatmap(url){
         
         document.getElementById('clhmsvg').setAttribute("height", canvasHeight+"px");
         document.getElementById('clhmsvg-toolbar').setAttribute("y", canvasHeight-38);
+
+        maxStrLength = 0;
+        document.querySelectorAll('.mpld3-xaxis .tick text').forEach(function(i){
+            maxStrLength = i.innerHTML.length > 0 ? i.innerHTML.length : maxStrLength;
+            //i.style.transform = "rotate(-90deg) translateX(-"+transX+"em) translateY(-1em)"
+        })
+
+        transX = maxStrLength * 0.34;
+        $('.mpld3-xaxis .tick text').css('transform','rotate(-90deg) translateX(-'+transX+'em) translateY(-1em)');
+
     });
 
 }

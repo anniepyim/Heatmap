@@ -4,11 +4,11 @@ import cgi, os, re, sys
 #import cgitb;cgitb.enable()
 import json
 import pandas as pd
-
+import numpy
 import collections
-import pandas as pd
 
 import matplotlib
+import matplotlib.pyplot as plt
 matplotlib.use('Agg')
 
 import mpld3
@@ -26,6 +26,21 @@ targeturl = "."+form.getvalue('targeturl')
 urlbd = targeturl.split("/")
 sourcecsv = "/".join(urlbd[0:len(urlbd)-1])+"/combined-heatmap.csv"
 process = urlbd[len(urlbd)-1].split(".json")[0]
+
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+
+    def default(self, obj):
+        if isinstance(obj, (numpy.int_, numpy.intc, numpy.intp, numpy.int8,
+            numpy.int16, numpy.int32, numpy.int64, numpy.uint8,
+            numpy.uint16,numpy.uint32, numpy.uint64)):
+            return int(obj)
+        elif isinstance(obj, (numpy.float_, numpy.float16, numpy.float32, 
+            numpy.float64)):
+            return float(obj)
+        elif isinstance(obj,(numpy.ndarray,)): #### This is the fix
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 if not os.path.isfile(targeturl):
     class PluginBase(object):
@@ -76,7 +91,7 @@ if not os.path.isfile(targeturl):
 
     df.drop(['process'],1,inplace=True)
     df.drop(['gene_function'],1,inplace=True)
-    df.dropna(thresh=len(df.columns)*0.5,inplace=True)
+    #df.dropna(thresh=len(df.columns)*0.5,inplace=True)
     mask = df.isnull()
     df.fillna(0,inplace=True)
 
@@ -85,7 +100,7 @@ if not os.path.isfile(targeturl):
         ratio = float(df.shape[0])/50
         if (ratio < 1):
             ratio = 1
-        canvasHeight = (0.65*ratio + 0.35)*800+40
+        canvasHeight = (0.65*ratio + 0.35)*800+60
         cbar_kws = { 'vmin' : -2, 'vmax':2, 'cmap':'RdBu'}
         cm= seaborn_hm.clustermap(df,mask=mask,**cbar_kws)
 
@@ -139,7 +154,7 @@ if not os.path.isfile(targeturl):
         json_all = [{'svg' : html, 'canvasHeight' : canvasHeight}]
 
         with open(targeturl, 'w') as fp:
-            json.dump(json_all, fp)
+            json.dump(json_all, fp, cls=NumpyEncoder)
 
 
 print "Content-type: text/html\n"

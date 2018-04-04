@@ -338,10 +338,10 @@ div.mpld3-tooltip
     pointer-events: none;
 }
 
-g.mpld3-xaxis g.tick text
+/*g.mpld3-xaxis g.tick text
 {
 transform: translateX(-2em) translateY(4em) rotate(-75deg) ;
-}
+}*/
 
 g.mpld3-xaxis path.domain,g.mpld3-yaxis path.domain
 {
