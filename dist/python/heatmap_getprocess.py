@@ -52,24 +52,38 @@ if (isGroup):
 
 #connecting to mysql database
 conn = pymysql.connect(host=host, port=port, user=user, passwd=passwd, db=organism, unix_socket=unix_socket)
-query1 = 'SELECT sampleID, gene, log2 FROM target_exp WHERE sampleID in ('+','.join(map("'{0}'".format, sampleID))+') AND userID in ("mitox","'+sessionid+'")'
+query1 = 'SELECT target_exp.sampleID, target_exp.geneID, target_exp.log2, target_exp.pvalue, target_mut.mutation FROM target_exp LEFT JOIN target_mut ON target_exp.sampleID=target_mut.sampleID AND target_exp.geneID=target_mut.geneID WHERE target_exp.sampleID in ('+','.join(map("'{0}'".format, sampleID))+') AND target_exp.userID in ("mitox","'+sessionid+'")'
 main = pd.read_sql(query1, con=conn)
-query = 'SELECT gene, process, gene_function from target'
-genefunc = pd.read_sql(query, con=conn)
+query2 = 'SELECT * from target'
+genefunc = pd.read_sql(query2, con=conn)
 conn.close()
 
 main = main.drop(main[(main.log2 > upper_limit) | (main.log2 < lower_limit)].index)
 
 if (isGroup):
     main = pd.merge(main,grouping,on='sampleID',how='inner')
-    main = main.groupby(['group','gene'])['log2'].mean().unstack('group')
-    main.reset_index(inplace=True)
-    main = pd.melt(main,id_vars=['gene'],var_name='sampleID', value_name='log2')
+    log2 = main.groupby(['group','geneID'])['log2'].mean().unstack('group')
+    log2.reset_index(inplace=True)
+    log2 = pd.melt(log2,id_vars=['geneID'],var_name='sampleID', value_name='log2')
+    mutation = main.groupby(['group','geneID'])['mutation'].count().unstack('group')
+    mutation.reset_index(inplace=True)
+    mutation = pd.melt(mutation,id_vars=['geneID'],var_name='sampleID', value_name='mutation')
+    main = pd.merge(log2,mutation,how='left', on=['geneID','sampleID'])
+    main['pvalue']=1
+    main['mutation'].fillna(0,inplace=True)
+    main['mutation'] = main['mutation'].astype(int).astype(str) + ' mutation(s)'
+    main['isgroup'] = "y"
+else:
+    main['isgroup'] = "n"
 
-main = main.pivot(index='gene',columns='sampleID',values='log2')
-main.reset_index(inplace=True)
-main = pd.merge(genefunc,main,on="gene",how='inner')
-main.set_index("gene",inplace=True)
+
+main.fillna('',inplace=True)
+
+main_exp = main.pivot(index='geneID',columns='sampleID',values='log2')
+main_exp.reset_index(inplace=True)
+
+main = pd.merge(main,genefunc,on="geneID",how='inner')
+main_exp = pd.merge(main_exp,genefunc[['geneID','process']],on="geneID",how='inner')
 
 exist = True
 
@@ -82,8 +96,11 @@ while exist == True:
 cmd = "mkdir -p ." + targeturl
 os.system(cmd)
 
+targetpath_complete= "." + targeturl + "complete_info.csv"
+main.to_csv(targetpath_complete, index=False)
+
 targetpath= "." + targeturl + "combined-heatmap.csv"
-main.to_csv(targetpath)
+main_exp.to_csv(targetpath,index=False)
 
 processes = sorted(main.process.unique())
 pro_list = []
@@ -91,7 +108,6 @@ for process in processes:
     
     df = main[main['process'] == process]   
     df.drop(['process'],1,inplace=True)
-    df.drop(['gene_function'],1,inplace=True)
     df.dropna(thresh=len(df.columns)*0.5,inplace=True)
     mask = df.isnull()
     df.fillna(0,inplace=True)

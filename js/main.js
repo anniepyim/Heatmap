@@ -43,14 +43,19 @@ function drawHeatmap(url){
           
             node = labels[i];
 
+            node.log2 = Math.round(node.log2 * 1000)/1000;
+            node.pvalue = Math.round(node.pvalue * 1000)/1000;
+            if (node.mutation != null && !(node.mutation instanceof Array)) node.mutation = node.mutation.split(";");
+
             if(clickEvent.holdClick) return;
 
             //Clear tooltip
             $('#rowtip1').empty();
 
             //Init tooltip if hover over gene
-            if(!_.isUndefined(node.gene))
+            if(!_.isUndefined(node.geneID))
               $('#rowtip1').append(tipTemplate(node));
+
         };
 
         onMouseOut = function(){
@@ -71,7 +76,7 @@ function drawHeatmap(url){
             $('#rowtip1').empty();
 
             //Init tooltip if hover over gene
-            if(!_.isUndefined(node.gene))
+            if(!_.isUndefined(node.geneID))
               $('#rowtip1').append(tipTemplate(node));
 
             d3.selectAll("path.mpld3-path").on("mouseout",null);
@@ -82,13 +87,13 @@ function drawHeatmap(url){
                 selected = 'selected-sample';
             }
            
-            var newvalue = labels[i].sample;
+            var newvalue = labels[i].sampleID;
 
        
-            if ($("#"+selected+" option[value='"+newvalue+"']").length === 0){    
+            if ($("#"+selected+" option[value='"+newvalue+"']").length === 0 && labels[i].isgroup == "n"){    
                 var option = document.createElement("option");
-                option.text = labels[i].sample;
-                option.value = labels[i].sample;
+                option.text = labels[i].sampleID;
+                option.value = labels[i].sampleID;
                 var select = document.getElementById(selected);
                 select.appendChild(option);
                 }
@@ -140,7 +145,7 @@ function drawHeatmap(url){
         document.querySelectorAll('.mpld3-xaxis .tick text').forEach(function(i){
             maxStrLength = i.innerHTML.length > 0 ? i.innerHTML.length : maxStrLength;
             //i.style.transform = "rotate(-90deg) translateX(-"+transX+"em) translateY(-1em)"
-        })
+        });
 
         transX = maxStrLength * 0.34;
         $('.mpld3-xaxis .tick text').css('transform','rotate(-90deg) translateX(-'+transX+'em) translateY(-1em)');

@@ -21,10 +21,11 @@ import os.path
 
 form = cgi.FieldStorage()
 targeturl = "."+form.getvalue('targeturl')
-#targeturl = "."+"./data/user_uploads/test/heatmap/90796/Amino Acid Metabolism.json"
+# targeturl = "."+"./data/user_uploads/test/heatmap/33655/Amino Acid Metabolism.json"
 
 urlbd = targeturl.split("/")
 sourcecsv = "/".join(urlbd[0:len(urlbd)-1])+"/combined-heatmap.csv"
+infocsv = "/".join(urlbd[0:len(urlbd)-1])+"/complete_info.csv"
 process = urlbd[len(urlbd)-1].split(".json")[0]
 
 class NumpyEncoder(json.JSONEncoder):
@@ -82,15 +83,13 @@ if not os.path.isfile(targeturl):
                           "voffset": voffset}
 
     main = pd.read_csv(sourcecsv)
-    main.set_index(['gene'],inplace=True)
+    main.set_index(['geneID'],inplace=True)
 
     df = main[main['process'] == process]  
 
-    info = df[['process','gene_function']]
-    info.reset_index(inplace = True)
+    info = pd.read_csv(infocsv)
 
     df.drop(['process'],1,inplace=True)
-    df.drop(['gene_function'],1,inplace=True)
     #df.dropna(thresh=len(df.columns)*0.5,inplace=True)
     mask = df.isnull()
     df.fillna(0,inplace=True)
@@ -133,7 +132,7 @@ if not os.path.isfile(targeturl):
         for row in df2:
             colc=0
             for col in df2[row]:
-                thing = {'gene': [row], 'sample': [df2.index[colc]], 'value': col}
+                thing = {'geneID': [row], 'sampleID': [df2.index[colc]], 'value': col}
                 things = pd.DataFrame(thing, index=[index])
                 if df3.empty:
                     df3 = things
@@ -143,7 +142,7 @@ if not os.path.isfile(targeturl):
                 index += 1
             rowc+=1
 
-        df3 = pd.merge(df3,info,on='gene',how='left')
+        df3 = pd.merge(df3,info,on=['geneID','sampleID'],how='left')
 
         labels = df3.to_json(orient='records')
 
