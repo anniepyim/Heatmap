@@ -1734,11 +1734,12 @@ if(init == "all"){
                 while (el.hasChildNodes()) {el.removeChild(el.firstChild);}
                 mainframe.setElement('#'+svg).renderHeatmap();
                 
+                //Improvement: python data in dictionary with Process name and file name (in processeID instead of name), no need to do the spliting this way
                 var htmltext = "";
                 $('#heatmapfolders').empty();
                 $.each(data, function(i,url) {
                     urlbd = url.split("/");
-                    mitoprocess = urlbd[urlbd.length-1].split(".json")[0];
+                    mitoprocess = urlbd[urlbd.length-1].split(".json")[0].split("_")[1];
                     htmltext = htmltext+'<option value=\"'+url+'\">'+mitoprocess+'</option>';
                 });
 

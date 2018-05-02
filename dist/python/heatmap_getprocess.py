@@ -82,34 +82,34 @@ main.fillna('',inplace=True)
 main_exp = main.pivot(index='geneID',columns='sampleID',values='log2')
 main_exp.reset_index(inplace=True)
 
-main = pd.merge(main,genefunc,on="geneID",how='inner')
 main_exp = pd.merge(main_exp,genefunc[['geneID','process']],on="geneID",how='inner')
 
 exist = True
 
 # Generating new directory for storing the results
+# Saving json output in database instead of file system?
+# Storing with unique file name instead of 
 while exist == True:
     newint = np.random.randint(low=10000, high=99999)
-    targeturl = './data/user_uploads/'+sessionid+'/heatmap/'+str(newint)+'/'
-    exist = os.path.isdir('.'+targeturl)
+    targeturl = './data/user_uploads/'+sessionid+'/heatmap/'+str(newint)+'_'
+    targetpath_main = "." + targeturl + "main.csv"
+    exist = os.path.isfile('.'+targetpath_main)
 
-cmd = "mkdir -p ." + targeturl
-os.system(cmd)
+main.to_csv(targetpath_main, index=False)
 
-targetpath_complete= "." + targeturl + "complete_info.csv"
-main.to_csv(targetpath_complete, index=False)
+targetpath_genefunc= "." + targeturl + "genefunc.csv"
+genefunc.to_csv(targetpath_genefunc, index=False)
 
-targetpath= "." + targeturl + "combined-heatmap.csv"
+targetpath= "." + targeturl + "main_exp.csv"
 main_exp.to_csv(targetpath,index=False)
 
-processes = sorted(main.process.unique())
+processes = sorted(main_exp.process.unique())
 pro_list = []
 for process in processes:
     
-    df = main[main['process'] == process]   
+    df = main_exp[main_exp['process'] == process]   
     df.drop(['process'],1,inplace=True)
     df.dropna(thresh=len(df.columns)*0.5,inplace=True)
-    mask = df.isnull()
     df.fillna(0,inplace=True)
     
     if (df.shape[0] >= 3):
