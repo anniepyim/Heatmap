@@ -4,12 +4,14 @@ import cgi, os, re, sys
 #import cgitb;cgitb.enable()
 import json
 import pandas as pd
-import numpy as np
+import numpy
 import collections
 
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')
+#matplotlib.use('Agg')
+
 
 import mpld3
 from mpld3 import utils
@@ -21,7 +23,7 @@ import os.path
 
 form = cgi.FieldStorage()
 targeturl = "."+form.getvalue('targeturl')
-# targeturl = "."+"./data/user_uploads/test/heatmap/33655/Amino Acid Metabolism.json"
+#targeturl = "."+"./data/user_uploads/testAnnie/heatmap/69089_Amino Acid Metabolism.json"
 
 urlbd = targeturl.split("/")
 analysisID = urlbd[len(urlbd)-1].split("_")[0]
@@ -104,7 +106,7 @@ if not os.path.isfile(targeturl):
             ratio = 1
         canvasHeight = (0.65*ratio + 0.35)*800+100
         cbar_kws = { 'vmin' : -2, 'vmax':2, 'cmap':'RdBu'}
-        cm= seaborn_hm.clustermap(df,mask=mask,**cbar_kws)
+        cm= seaborn_hm.clustermap(df,mask=mask,figsize=(8, 8),**cbar_kws)
 
         p = cm.heatmap.mesh
         df2 = cm.data2d
@@ -129,7 +131,7 @@ if not os.path.isfile(targeturl):
         df2 = cm.data2d
         genes = list(reversed(df2.index.tolist()))
         samples = df2.columns.tolist() * len(df2.index)
-        genes = list(np.repeat(genes,len(df2.columns)))
+        genes = list(numpy.repeat(genes,len(df2.columns)))
         df3 = pd.DataFrame({'sampleID': samples, 'geneID': genes})
 
         genefunc = pd.read_csv(genefunc_path)
@@ -158,8 +160,8 @@ print "<html>"
 print sessionid
 print "</html>"
 
-# print 'Content-Type: application/json\n\n'
-# print (output)
+#print 'Content-Type: application/json\n\n'
+#print (json_all)
 
 # print "Content-type: text/html\n"
 # print (hm.height)

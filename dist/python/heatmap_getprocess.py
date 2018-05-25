@@ -24,7 +24,7 @@ upper_limit = float(form.getvalue('upper_limit'))
 lower_limit = float(form.getvalue('lower_limit'))
 
 # sampleID = ['HCT116-21-3-c1', 'HCT116-21-3-c3', 'HCT116-5-4', 'HCT116-5-4-p']
-# sessionid= "test"
+# sessionid= "testAnnie"
 # organism = "Human"
 # host = "localhost"
 # port = 3306
